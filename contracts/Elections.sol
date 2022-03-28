@@ -30,7 +30,7 @@ contract Elections {
         electionAddress = address(this);
     }
 
-    function startElection (string memory name_of_election) public onlyOwner noElectionRepeat(name_of_election) {
+    function startElection (string memory name_of_election) public onlyOwner {
         indexOfElection[name_of_election] = AllElections.length;
 
         ElectionStruct storage newElectionStruct = AllElections.push();
@@ -44,9 +44,8 @@ contract Elections {
         string memory name_of_election,
         string memory name_of_candidate,
         address candidate_wallet_address
-        ) public onlyOwner noCandidateRepeat(name_of_election, name_of_candidate) {
-            require (AllElections[indexOfElection[name_of_election]].electionEndTime != 0, "You must Start Election first!");
-            require (AllElections[indexOfElection[name_of_election]].electionEndTime - 71 hours >= block.timestamp, "You should had added all Candidates an hour ago! Now it`s too late...");
+        ) public onlyOwner {
+            require (AllElections[indexOfElection[name_of_election]].electionEndTime - 71 hours >= block.timestamp, "You should had added all Candidates at first hour of Election! Now it`s too late!");
 
             AllElections[indexOfElection[name_of_election]].indexToVote[name_of_candidate] = AllElections[indexOfElection[name_of_election]].listOfCandidates.length;
             AllElections[indexOfElection[name_of_election]].listOfCandidates.push (
@@ -65,6 +64,8 @@ contract Elections {
 
             uint indexOfCandidate = AllElections[indexOfElection[name_of_election]].indexToVote[name_of_candidate];
             AllElections[indexOfElection[name_of_election]].listOfCandidates[indexOfCandidate].voteCount += 1;
+
+            emit ElectionResults(AllElections[indexOfElection[name_of_election]].listOfCandidates[indexOfCandidate].name, AllElections[indexOfElection[name_of_election]].listOfCandidates[indexOfCandidate].voteCount);
     }
 
     function showCurrentResults (string memory name_of_election) public view returns (string[] memory, uint[] memory) {
@@ -83,14 +84,6 @@ contract Elections {
     }
 
     function endElectionGetWinner (string memory name_of_election) public whenElectionEnds(name_of_election) returns (string memory) {
-
-        for (uint i = 0; i < AllElections[indexOfElection[name_of_election]].listOfCandidates.length; i++) {
-            emit ElectionResults(
-                AllElections[indexOfElection[name_of_election]].listOfCandidates[i].name,
-                AllElections[indexOfElection[name_of_election]].listOfCandidates[i].voteCount
-                );
-        }
-
         Candidate memory winner;
 
         for(uint i = 0; i < AllElections[indexOfElection[name_of_election]].listOfCandidates.length; i++){
@@ -105,6 +98,8 @@ contract Elections {
 
         uint prize = (AllElections[indexOfElection[name_of_election]].electionBalance/10)*9;
         payable (winner.walletAddress).transfer(prize);
+
+        emit ElectionResults(winner.name, winner.voteCount);
 
         return winner.name;
     }
@@ -130,25 +125,25 @@ contract Elections {
     }
 
     modifier onlyOwner () {
-        require(msg.sender == owner, "You`re not an owner!");
+        require(msg.sender == owner, "You are not an owner!");
         _;
     }
 
-    modifier noCandidateRepeat (string memory name_of_election, string memory name_of_candidate) {
-        require (AllElections[indexOfElection[name_of_election]].indexToVote[name_of_candidate] == 0, "Candidate with this name already exists!");
-        require (keccak256(abi.encodePacked((AllElections[indexOfElection[name_of_election]].listOfCandidates[0].name))) != keccak256(abi.encodePacked((name_of_candidate))), "Candidate with this name already exists!");
-        _;
-    }
+    // modifier noCandidateRepeat (string memory name_of_election, string memory name_of_candidate) {
+    //     require (AllElections[indexOfElection[name_of_election]].indexToVote[name_of_candidate] == 0, "Candidate with this name already exists!");
+    //     require (keccak256(abi.encodePacked(AllElections[indexOfElection[name_of_election]].listOfCandidates[1].name)) != keccak256(abi.encodePacked(name_of_candidate)), "Candidate with this name already exists!");
+    //     _;
+    // }
 
-    modifier noElectionRepeat (string memory name_of_election) {
-        require (indexOfElection[name_of_election] == 0, "Election with this name already exists!");
-        require (keccak256(abi.encodePacked((AllElections[0].electionName))) != keccak256(abi.encodePacked((name_of_election))), "Election with this name already exists!");
-        _;
-    }
+    // modifier noElectionRepeat (string memory name_of_election) {
+    //     require (indexOfElection[name_of_election] == 0, "Election with this name already exists!");
+    //     require (keccak256(abi.encodePacked(AllElections[1].electionName)) != keccak256(abi.encodePacked(name_of_election)), "Election with this name already exists!");
+    //     _;
+    // }
 
     event ElectionResults (string name, uint voteCount);
 
     receive () payable external{
-        revert("Contract Elections does not support straight payble transactions, please use abi to interact");
+        revert("Contract Elections does not support straight payable transactions, please use abi to interact");
     }
 }
