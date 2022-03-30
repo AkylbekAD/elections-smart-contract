@@ -45,7 +45,7 @@ contract Elections {
         string memory name_of_candidate,
         address candidate_wallet_address
         ) public onlyOwner {
-            require (AllElections[indexOfElection[name_of_election]].electionEndTime - 71 hours >= block.timestamp, "You should had added all Candidates at first hour of Election! Now it`s too late!");
+            require (AllElections[indexOfElection[name_of_election]].electionEndTime > block.timestamp, "This election ended");
 
             AllElections[indexOfElection[name_of_election]].indexToVote[name_of_candidate] = AllElections[indexOfElection[name_of_election]].listOfCandidates.length;
             AllElections[indexOfElection[name_of_election]].listOfCandidates.push (
@@ -128,18 +128,6 @@ contract Elections {
         require(msg.sender == owner, "You are not an owner!");
         _;
     }
-
-    // modifier noCandidateRepeat (string memory name_of_election, string memory name_of_candidate) {
-    //     require (AllElections[indexOfElection[name_of_election]].indexToVote[name_of_candidate] == 0, "Candidate with this name already exists!");
-    //     require (keccak256(abi.encodePacked(AllElections[indexOfElection[name_of_election]].listOfCandidates[1].name)) != keccak256(abi.encodePacked(name_of_candidate)), "Candidate with this name already exists!");
-    //     _;
-    // }
-
-    // modifier noElectionRepeat (string memory name_of_election) {
-    //     require (indexOfElection[name_of_election] == 0, "Election with this name already exists!");
-    //     require (keccak256(abi.encodePacked(AllElections[1].electionName)) != keccak256(abi.encodePacked(name_of_election)), "Election with this name already exists!");
-    //     _;
-    // }
 
     event ElectionResults (string name, uint voteCount);
 

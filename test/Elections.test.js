@@ -54,7 +54,7 @@ describe("Election contract", function () {
         const blockBefore = await ethers.provider.getBlock(blockNumBefore);
         const timestampBefore = blockBefore.timestamp; // finds current time in blockchain
 
-        const electionEndTime = timestampBefore + 3 * 24 * 60 * 60;
+        const electionEndTime = timestampBefore + 3 * 24 * 60 * 61;
         await ethers.provider.send('evm_setNextBlockTimestamp', [electionEndTime])
         await ethers.provider.send('evm_mine')
     }
@@ -179,9 +179,6 @@ describe("Election contract", function () {
         })
 
         it("Noone can end Election before 3 days after it starts", async function () {
-            testVoteForCandidate(acc1, "USA", "Trump", 0.01)
-            testVoteForCandidate(acc2, "USA", "Trump",0.01)
-
             await expect(
                 ElectionsInterface.connect(owner).endElectionGetWinner("USA")
                 ).to.be.revertedWith("This Election time does not over!")

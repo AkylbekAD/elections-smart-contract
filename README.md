@@ -1,15 +1,28 @@
-# Basic Sample Hardhat Project
+# Elections smart-contract
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+Elections smart-contract allows to create an elections on blockchain, each of election continues for 3 days, to vote for candidate you have to pay 0.01 ETH, after endtime of election anyone can end it, then 90% of election balance would be send to winner.
+Only owner can start election, add candidates to election and withdraw 10% of each election fee funds.
 
-Try running some of the following tasks:
+You can check or test deployed contract on:
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
+Etherscan - https://rinkeby.etherscan.io/address/0x1332358eE095635EC7e1D37cc86AFaA5b0421c01#code
+
+Alchemy - https://dashboard.alchemyapi.io/apps/pzssfh9tfvqpmk03
+
+
+### To see all available hardhat tasks run:
+
 ```
+npx hardhat help
+
+```
+
+Watch which parameters you need to add to interact with smart-contracts functionality by useing --help option
+
+Example:
+
+```
+npx hardhat startElection --help
+
+```
+
